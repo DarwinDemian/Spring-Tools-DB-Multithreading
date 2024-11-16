@@ -9,7 +9,9 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>spring-db-thread</name>
-  <url>http://maven.apache.org</url>
+
+<!--  TODO: decide URL -->
+  <url>https://github.com/DarwinDemian/Spring-Tools-DB-Multithreading</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,6 +31,11 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
       <version>5.8.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>5.3.30</version> <!-- Replace with the desired Spring version -->
     </dependency>
 
     <!-- Logging -->
@@ -58,6 +65,12 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>RELEASE</version>
+      <scope>compile</scope>
     </dependency>
 
   </dependencies>
