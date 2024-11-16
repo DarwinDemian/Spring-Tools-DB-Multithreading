@@ -149,6 +149,13 @@ public class SpringDBThreadRunner {
         }
 
         /**
+         * @return exceptions not thrown inside any thread.
+         */
+        public List<Exception> getInternalExceptions() {
+            return getExceptionsByTask(numOfTasks + 1);
+        }
+
+        /**
          * @return thread-safe list of all results.
          */
         public List<T> getResults() {
