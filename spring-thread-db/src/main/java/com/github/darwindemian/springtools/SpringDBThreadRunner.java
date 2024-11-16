@@ -149,7 +149,7 @@ public class SpringDBThreadRunner {
         }
 
         /**
-         * @return exceptions not thrown inside any thread.
+         * @return exceptions not thrown inside any running task's thread.
          */
         public List<Exception> getInternalExceptions() {
             return getExceptionsByTask(numOfTasks + 1);
