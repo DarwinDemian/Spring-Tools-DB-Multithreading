@@ -24,13 +24,23 @@ import java.util.stream.Collectors;
 @Service
 public class SpringDBThreadRunner {
 
+    // TODO: SingleThreadPool/GlobalThreadPool
+    // TODO: single case ThreadPool
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringDBThreadRunner.class);
 
-    @Autowired
     private PlatformTransactionManager transactionManager;
 
-    public static final int MAX_THREADS = Integer.MAX_VALUE;
-    public static final int MIN_THREADS = 1;
+    private final ThreadAllocationStrategy threadAllocationStrategy;
+
+    @Autowired
+    public SpringDBThreadRunner(
+            ThreadAllocationStrategy threadAllocationStrategy,
+            PlatformTransactionManager transactionManager
+    ) {
+        this.threadAllocationStrategy = threadAllocationStrategy;
+        this.transactionManager = transactionManager;
+    }
 
     /**
      * Facilitates controlling timeout when referring to this class
@@ -188,7 +198,7 @@ public class SpringDBThreadRunner {
      * Use {@link SpringDBThreadRunner#run(List, int, boolean, Timeout, Long)} when running async tasks (without {@code timeout}).
      *
      * @param tasks your list of tasks that will run.
-     * @param threads number of threads between {@link SpringDBThreadRunner#MIN_THREADS} and {@link SpringDBThreadRunner#MAX_THREADS}.
+     * @param threads number of threads between {@link ThreadAllocationStrategy#getMinThreads()} and {@link ThreadAllocationStrategy#getMaxThreads()}.
      * @param terminateOnException if you want to roll back and stop all tasks on the first error encountered.
      * @param timeout whether you want the operation to time out for this amount.
      * @param throttle whether you want the next task to sleep for this amount.
@@ -217,7 +227,7 @@ public class SpringDBThreadRunner {
      * Use this when running async tasks (without {@code timeout}).
      *
      * @param tasks your list of tasks that will run.
-     * @param threads number of threads between {@link SpringDBThreadRunner#MIN_THREADS} and {@link SpringDBThreadRunner#MAX_THREADS}.
+     * @param threads number of threads between {@link ThreadAllocationStrategy#getMinThreads()} and {@link ThreadAllocationStrategy#getMaxThreads()}.
      * @param terminateOnException if you want to roll back and stop all tasks on the first error encountered. Complete rollback and stopping not guaranteed.
      * @param timeout whether you want the operation to time out for this amount.
      * @param throttle whether you want the next task to sleep for this amount.
@@ -238,7 +248,7 @@ public class SpringDBThreadRunner {
      * Use this when running async tasks (without {@code timeout}).
      *
      * @param tasks your list of tasks that will run.
-     * @param threads number of threads between {@link SpringDBThreadRunner#MIN_THREADS} and {@link SpringDBThreadRunner#MAX_THREADS}.
+     * @param threads number of threads between {@link ThreadAllocationStrategy#getMinThreads()} ()} and {@link ThreadAllocationStrategy#getMaxThreads()}.
      * @param terminateOnException if you want to roll back and stop all tasks on the first error encountered. Complete rollback and task stopping not guaranteed.
      * @param timeout whether you want the operation to time out for this amount.
      * @param throttle whether you want the next task to sleep for this amount.
@@ -256,8 +266,14 @@ public class SpringDBThreadRunner {
         AtomicReference<Result<T>> result = new AtomicReference<>(new Result<>(timeout != null, tasks.size()));
 
         ExecutorService ex = Executors.newFixedThreadPool(
-                Math.max(MIN_THREADS, Math.min(threads, MAX_THREADS))
+                Math.max(
+                        threadAllocationStrategy.getMinThreads(),
+                        Math.min(threads, threadAllocationStrategy.getMaxThreads())
+                )
         );
+
+        // TODO: actual thread pool exhaustion (thrown by ExecutorService)
+        // TODO: param defined thread pool exhaustion
 
         for (Callable<T> task : tasks) {
             ex.submit(() -> {
