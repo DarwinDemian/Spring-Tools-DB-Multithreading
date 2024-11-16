@@ -276,7 +276,7 @@ public class SpringDBThreadRunner {
                 result.get().finished = ex.awaitTermination(timeout.timeout, timeout.timeUnit);
             } catch (InterruptedException e) {
                 result.get().hasException = true;
-                addToMap(result.get().exceptions, result.get().numOfTasks + 1, e);
+                result.get().exceptions.get(result.get().numOfTasks + 1).add(e);
             }
 
             if (!result.get().finished) ex.shutdownNow();
